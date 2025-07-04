@@ -10,7 +10,6 @@
 
 
 
-## Extension
+## Reference
 
-- [ollama-export](https://github.com/ai-flowx/ollama/tree/main/export)
-- [ollama-serve](https://github.com/ai-flowx/ollama/tree/main/serve)
+- [ollama](https://ollama.com/)
