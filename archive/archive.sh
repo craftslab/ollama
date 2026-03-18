@@ -44,6 +44,14 @@ require_cmd() {
 	command -v "$1" >/dev/null 2>&1 || die "Required command not found: $1"
 }
 
+set_cleanup_trap() {
+	local path="$1"
+	local cleanup_cmd
+
+	printf -v cleanup_cmd 'rm -rf -- %q' "$path"
+	trap "$cleanup_cmd" EXIT
+}
+
 default_store_path() {
 	if [ -n "${OLLAMA_MODELS:-}" ]; then
 		printf '%s\n' "$OLLAMA_MODELS"
@@ -197,7 +205,7 @@ archive_model() {
 	manifest_rel="${manifest#"$store/"}"
 
 	tmpdir="$(mktemp -d)"
-	trap 'rm -rf "$tmpdir"' EXIT
+	set_cleanup_trap "$tmpdir"
 
 	mkdir -p "$tmpdir/$(dirname "$manifest_rel")" "$tmpdir/blobs"
 	cp "$manifest" "$tmpdir/$manifest_rel"
@@ -235,7 +243,7 @@ restore_model() {
 	[ -f "$archive_file" ] || die "Archive file not found: $archive_file"
 
 	tmpdir="$(mktemp -d)"
-	trap 'rm -rf "$tmpdir"' EXIT
+	set_cleanup_trap "$tmpdir"
 
 	tar -C "$tmpdir" -xzf "$archive_file"
 	[ -d "$tmpdir/manifests" ] || die "Archive is missing manifests/"
