@@ -13,7 +13,8 @@ This is intended for offline transfer of a model such as `llama3.2`.
 
 - Ubuntu with Docker installed and running if you want to deploy Ollama in a container
 - Ubuntu with Bash and `tar`
-- Ollama already installed on both source and target machines
+- Ollama already installed on the source machine
+- Ollama installed on the target machine either directly or with Docker
 - Read access to the source Ollama model store
 - Write access to the target Ollama model store
 - `sudo` on the target machine if Ollama runs as a system service
@@ -122,6 +123,12 @@ Restore to a specific model store path:
 sudo ./archive.sh restore /tmp/llama3.2-archive.tgz /usr/share/ollama/.ollama/models
 ```
 
+If Ollama runs in Docker with `-v ~/.ollama:/root/.ollama`, restore into the host-mounted model path:
+
+```bash
+./archive.sh restore /tmp/llama3.2-archive.tgz "$HOME/.ollama/models"
+```
+
 During restore, the script:
 
 - Extracts the archive into the target Ollama model store
@@ -130,11 +137,18 @@ During restore, the script:
 
 ## Verify the Restored Model
 
-After restore:
+After restore with a system installation:
 
 ```bash
 ollama list
 ollama run llama3.2
+```
+
+After restore with Docker:
+
+```bash
+docker exec ollama ollama list
+docker exec ollama ollama run llama3.2
 ```
 
 ## End-to-End Example
@@ -157,6 +171,16 @@ ollama list
 ollama run llama3.2
 ```
 
+On the target machine with Docker:
+
+```bash
+docker run -d -v ~/.ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama:latest
+cd /home/lemonjia/my-tmp/ollama/archive
+./archive.sh restore /tmp/llama3.2-archive.tgz "$HOME/.ollama/models"
+docker exec ollama ollama list
+docker exec ollama ollama run llama3.2
+```
+
 ## Notes
 
 - This script archives one model manifest and the blobs referenced by that manifest.
@@ -168,6 +192,7 @@ sudo systemctl restart ollama
 ```
 
 - If your Ollama setup uses a custom store path, set `OLLAMA_MODELS` or pass the destination store path explicitly during restore.
+- If Ollama runs in Docker with `-v ~/.ollama:/root/.ollama`, the correct host restore path is `$HOME/.ollama/models`.
 
 ## Troubleshooting
 

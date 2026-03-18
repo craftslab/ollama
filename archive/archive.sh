@@ -5,22 +5,29 @@ set -euo pipefail
 SCRIPT_NAME="$(basename "$0")"
 
 usage() {
-	cat <<'EOF'
+	cat <<EOF
 Usage:
-	ollama.sh archive <model> [archive-file]
-	ollama.sh restore <archive-file> [target-model-store]
-	ollama.sh help
+	$SCRIPT_NAME archive <model> [archive-file]
+	$SCRIPT_NAME restore <archive-file> [target-model-store]
+	$SCRIPT_NAME help
 
 Examples:
-	ollama.sh archive llama3.2
-	ollama.sh archive llama3.2 /tmp/llama3.2-archive.tgz
-	sudo ollama.sh restore /tmp/llama3.2-archive.tgz
-	sudo ollama.sh restore /tmp/llama3.2-archive.tgz /usr/share/ollama/.ollama/models
+	$SCRIPT_NAME archive llama3.2
+	$SCRIPT_NAME archive llama3.2 /tmp/llama3.2-archive.tgz
+	$SCRIPT_NAME restore /tmp/llama3.2-archive.tgz "\$HOME/.ollama/models"
+	sudo $SCRIPT_NAME restore /tmp/llama3.2-archive.tgz /usr/share/ollama/.ollama/models
+
+Docker-based Ollama deployment on Ubuntu:
+	docker run -d -v ~/.ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama:latest
+	$SCRIPT_NAME restore /tmp/llama3.2-archive.tgz "\$HOME/.ollama/models"
+	docker exec ollama ollama list
 
 Notes:
 	- The archive command copies the model manifest and every blob digest referenced by it.
 	- The restore command extracts those files into an Ollama model store on Ubuntu.
-	- After restore, verify with: ollama list
+	- For Docker with -v ~/.ollama:/root/.ollama, the host model store is: \$HOME/.ollama/models
+	- If Ollama runs in Docker, restore into the host-mounted path and verify with: docker exec ollama ollama list
+	- If Ollama runs as a system service, after restore verify with: ollama list
 EOF
 }
 
