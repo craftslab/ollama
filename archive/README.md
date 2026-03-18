@@ -11,11 +11,40 @@ This is intended for offline transfer of a model such as `llama3.2`.
 
 ## Requirements
 
+- Ubuntu with Docker installed and running if you want to deploy Ollama in a container
 - Ubuntu with Bash and `tar`
 - Ollama already installed on both source and target machines
 - Read access to the source Ollama model store
 - Write access to the target Ollama model store
 - `sudo` on the target machine if Ollama runs as a system service
+
+## Deploy Ollama on Ubuntu with Docker
+
+If Ollama is not installed yet on Ubuntu, you can run it in Docker instead:
+
+```bash
+docker run -d -v ~/.ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama:latest
+```
+
+This starts Ollama in the background and persists the model store in `~/.ollama` on the host so archived models can be restored there.
+
+To confirm the container is running:
+
+```bash
+docker ps
+```
+
+If you use this Docker deployment, the model store used by the container maps to:
+
+```bash
+$HOME/.ollama
+```
+
+That means the model path inside the host is typically:
+
+```bash
+$HOME/.ollama/models
+```
 
 ## Common Ollama Model Store Paths on Ubuntu
 
